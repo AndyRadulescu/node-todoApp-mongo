@@ -36,16 +36,44 @@ app.get('/todos/:id', (req, res) => {
     } else {
         Todo.findById(id).then((todo) => {
             if (!todo) {
-               res.status(404).send();
-               console.log(`The id ${id} did not match with any in the db.`);
-               return;
+                res.status(404).send();
+                console.log(`The id ${id} did not match with any in the db.`);
+                return;
             }
             res.send({ todo });
-        }).catch((err) =>{
-             console.log(err);
-             return res.status(400).send();
-            });
+        }).catch((err) => {
+            console.log(err);
+            return res.status(400).send();
+        });
     }
+});
+
+app.delete('/todos/:id', (req, res) => {
+    // get the id
+    let id = req.params.id;
+    console.log(id);
+
+    if (!ObjectID.isValid(id)) {
+        console.log(`the id ${id} id not valid`);
+        return res.status(404).send();
+    } else {
+        Todo.findByIdAndRemove(id).then((todo) => {
+            if (!todo) {
+                res.status(404).send();
+                console.log(`The id ${id} did not match with any in the db.`);
+                return;
+            }
+            res.send({ todo });
+        }).catch((err) => {
+            console.log(err);
+            return res.status(400).send();
+        });
+    }
+
+    // validate the id
+
+    // remove todo by id 
+    // success
 });
 
 app.listen(port, () => {
