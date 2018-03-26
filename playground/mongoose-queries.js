@@ -36,5 +36,5 @@ if (!ObjectID.isValid(userId)) {
             return console.log('Id not found');
         }
         console.log('User by id', user);
-    }).catch((err) => console.log(e));
+    }).catch((err) => console.log(err));
 }
