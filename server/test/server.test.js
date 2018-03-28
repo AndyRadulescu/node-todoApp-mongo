@@ -1,40 +1,25 @@
 const expect = require('expect');
 const request = require('supertest');
-const { ObjectID } = require('mongodb');
+const {ObjectID} = require('mongodb');
 
-const { app } = require('./../server');
-const { Todo } = require('./../models/Todo');
+const {app} = require('./../server');
+const {Todo} = require('./../models/Todo');
+const {todos, populateTodos} = require('./seed/seed');
 
-const todos = [{
-    _id: new ObjectID(),
-    text: 'First test todo',
-    completed: false,
-    completedAt: 351532
-}, {
-    _id: new ObjectID(),
-    text: 'Something test todo',
-    completed: true,
-    completedAt: 333
-}];
-
-beforeEach((done) => {
-    Todo.remove({}).then(() => {
-        return Todo.insertMany(todos);
-    }).then(() => done());
-});
+beforeEach(populateTodos);
 
 describe('POST /todos', () => {
     it('should create a new Todo', (done) => {
         let text = 'Test todo text';
 
-        request(app).post('/todos').send({ text }).expect(200).expect((res) => {
+        request(app).post('/todos').send({text}).expect(200).expect((res) => {
             expect(res.body.text).toBe(text);
         }).end((err, res) => {
             if (err) {
                 return done(err);
             }
 
-            Todo.find({ text }).then((todos) => {
+            Todo.find({text}).then((todos) => {
                 expect(todos.length).toBe(1);
                 expect(todos[0].text).toBe(text);
                 done();
@@ -68,8 +53,8 @@ describe('GET /todos/:id', () => {
     it('should return todo doc', (done) => {
         request(app).get(`/todos/${todos[0]._id.toHexString()}`)
             .expect(200).expect((res) => {
-                expect(res.body.todo.text).toBe(todos[0].text);
-            }).end(done);
+            expect(res.body.todo.text).toBe(todos[0].text);
+        }).end(done);
     });
 
     it('should return 404 if todo is not found', (done) => {
@@ -118,12 +103,12 @@ describe("PATCH /todos/:id", () => {
         let text = "This is the new text";
         //update text, set completed true
 
-        request(app).patch(`/todos/${hexId}`).send({ completed: true, text })
+        request(app).patch(`/todos/${hexId}`).send({completed: true, text})
             .expect(200).expect((res) => {
-                expect(res.body.todo.text).toBe(text);
-                expect(res.body.todo.completed).toBe(true);
-                expect(typeof res.body.todo.completedAt).toBe('number');
-            }).end(done);
+            expect(res.body.todo.text).toBe(text);
+            expect(res.body.todo.completed).toBe(true);
+            expect(typeof res.body.todo.completedAt).toBe('number');
+        }).end(done);
         //200
         // text is changed, completed is true, completedAt is a number
     });
@@ -137,11 +122,11 @@ describe("PATCH /todos/:id", () => {
         let text = "This is the new text";
         //update text, set completed true
 
-        request(app).patch(`/todos/${hexId}`).send({ completed: false, text })
+        request(app).patch(`/todos/${hexId}`).send({completed: false, text})
             .expect(200).expect((res) => {
-                expect(res.body.todo.text).toBe(text);
-                expect(res.body.todo.completed).toBe(false);
-                expect(res.body.todo.completedAt).toBe(null);
-            }).end(done);
+            expect(res.body.todo.text).toBe(text);
+            expect(res.body.todo.completed).toBe(false);
+            expect(res.body.todo.completedAt).toBe(null);
+        }).end(done);
     });
 });
